@@ -44,7 +44,7 @@ that both rebuilt may conflict in `public/build`; after merging, run the two com
 | PHP extensions `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `dom`, `ctype`, `filter`, `iconv`, `tokenizer` | Select PHP Version → Extensions, or ask the host |
 | A MySQL or MariaDB database | MySQL Databases |
 | **Git Version Control** | Files |
-| **Terminal** or SSH access, with Composer | Terminal |
+| **Terminal** or SSH access | Terminal |
 | An SSL certificate | SSL/TLS Status (AutoSSL) |
 
 HTTPS is not optional: the Android app refuses plain `http://`.
@@ -61,8 +61,17 @@ PHP=/opt/cpanel/ea-php84/root/usr/bin/php
 COMPOSER=/opt/cpanel/composer/bin/composer
 ```
 
-These are the usual cPanel paths. On CloudLinux, PHP is often `/opt/alt/php84/usr/bin/php`. If a path
-does not exist, ask your host.
+These are the usual cPanel paths. On CloudLinux, PHP is often `/opt/alt/php84/usr/bin/php`. If no PHP
+8.4 path exists, ask your host.
+
+**No Composer** ("command not found", and nothing at that path)? Download it into your home folder from
+[getcomposer.org](https://getcomposer.org/download/), then point `$COMPOSER` at it. The deploy script
+looks there too.
+
+```bash
+curl -fsSL https://getcomposer.org/download/latest-stable/composer.phar -o ~/composer.phar
+COMPOSER=$HOME/composer.phar
+```
 
 # First-time setup
 
