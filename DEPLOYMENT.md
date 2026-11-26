@@ -18,7 +18,7 @@ copied between folders. The **Deploy HEAD Commit** button runs `.cpanel.yml`, wh
 | PHP packages (`vendor`) | Composer, run on the server |
 | Settings and secrets (`.env`) | created once on the server, never in GitHub |
 
-The server needs no Node, cron job or queue worker.
+The server needs no Node or queue worker. One cron job is needed only for the dashboard's deploy button.
 
 ## Before every push (on your PC)
 
@@ -222,6 +222,53 @@ To replace the app key later, set `POOL_APP_KEYS=newkey,oldkey`, run `$PHP artis
 the phones, then remove the old key.
 
 # Updating the live site
+
+There are two ways: the **Deploy latest** button on the admin dashboard, or cPanel.
+
+## From the admin dashboard
+
+The website never runs commands itself. The button leaves a request in `storage/app/deploy/`, and a
+cron job runs `scripts/cpanel-deploy-runner.sh`, which pulls `main` from GitHub and runs the same
+deploy script as cPanel. Only system administrators see the page, and it asks for their password.
+
+### One-time setup
+
+1. Put the version with this feature on the server once, using "From cPanel" below.
+2. **Cron Jobs** → **Add New Cron Job** → **Common Settings: Once Per Minute**. As the command, enter
+   this, with your cPanel username (the dashboard's Deployment page shows the exact path):
+
+   ```
+   /bin/sh /home/USER/dnn-pools-backend/scripts/cpanel-deploy-runner.sh >/dev/null 2>&1
+   ```
+
+3. Wait a minute, then open **Deployment** on the admin dashboard. It should say the cron job is running.
+
+If your host does not allow a job every minute, every five minutes also works; deployments then wait
+longer to start. The button is disabled when the job has not run for 15 minutes.
+
+### Each update
+
+1. On your PC, build if needed (see "Before every push"), commit, and push to `main`.
+2. If the database changes, back it up (**phpMyAdmin → Export**).
+3. Admin dashboard → **Deployment** → **Deploy latest**, then enter your password.
+
+The site is in maintenance mode for part of the run. When it is back, reload the page to see whether it
+succeeded, with the log.
+
+| Result | What to do |
+|---|---|
+| "Files were changed on the server" | see "When cPanel says The system cannot deploy" below; the log lists the files |
+| "The server's copy is not on the main branch" | in cPanel's Git Version Control, check out `main` |
+| "Could not pull from GitHub" | read the log: no connection, rewritten history, or an uploaded file in the way |
+| "a later step failed" | the site may stay in maintenance mode, so the dashboard cannot help: use Terminal, below |
+
+**Keep a way in.** A failed deployment can leave the site down. Terminal or cPanel is then the way to
+repair it. The runner's log is `storage/app/deploy/last.log`.
+
+Whoever can push to `main`, or sign in as a system administrator, controls what runs on your server.
+Turn on two-factor sign-in for GitHub and for your administrator account.
+
+## From cPanel
 
 1. On your PC, build if needed (see "Before every push"), commit, and push to `main`.
 2. If the database changes, back it up (**phpMyAdmin → Export**).

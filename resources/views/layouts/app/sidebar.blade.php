@@ -21,6 +21,9 @@
                         <flux:sidebar.item icon="building-office" :href="route('admin.institutions.index')" :current="request()->routeIs('admin.institutions.*')" wire:navigate>
                             {{ __('Institutions') }}
                         </flux:sidebar.item>
+                        <flux:sidebar.item icon="cloud-arrow-down" :href="route('admin.deployment')" :current="request()->routeIs('admin.deployment')" wire:navigate>
+                            {{ __('Deployment') }}
+                        </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endif
 

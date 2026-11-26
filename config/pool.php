@@ -30,4 +30,22 @@ return [
         explode(',', (string) env('POOL_APP_KEYS', '')),
     ))),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy from the admin dashboard
+    |--------------------------------------------------------------------------
+    |
+    | The dashboard leaves a request in "path", where the cron script
+    | scripts/cpanel-deploy-runner.sh looks for it. The script has that folder
+    | built in, so change "path" only in tests. The button is disabled when the
+    | script has not started for "cron_stale_minutes".
+    |
+    */
+
+    'deploy' => [
+        'path' => storage_path('app/deploy'),
+        'git_path' => base_path('.git'),
+        'cron_stale_minutes' => 15,
+    ],
+
 ];

@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::livewire('institutions/{institutionId}', 'pages::admin.institution')
             ->whereNumber('institutionId')
             ->name('institutions.show');
+        Route::livewire('deployment', 'pages::admin.deployment')->name('deployment');
     });
 });
 
