@@ -6,6 +6,9 @@
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
+/* The build output is committed to git, so it must not be scanned for class names. */
+@source not '../../public/build';
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {

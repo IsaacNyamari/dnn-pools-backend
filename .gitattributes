@@ -9,3 +9,6 @@
 CHANGELOG.md export-ignore
 README.md export-ignore
 .github/workflows/browser-tests.yml export-ignore
+
+# Built by "npm run build" and committed, because the server has no Node.
+/public/build/** -diff linguist-generated=true

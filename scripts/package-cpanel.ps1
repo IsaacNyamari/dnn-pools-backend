@@ -30,7 +30,8 @@ try {
     $files = git -c core.quotepath=off ls-files --cached --others --exclude-standard
     Assert-Success 'git ls-files'
     # The single-file Livewire views have a non-ASCII character in their names.
-    $skip = '^(tests/|\.github/|dist/|scripts/|phpunit\.xml$|phpstan\.neon$)'
+    # public/build is left out here because it is copied below, as just built.
+    $skip = '^(tests/|\.github/|dist/|scripts/|public/build/|phpunit\.xml$|phpstan\.neon$)'
 
     foreach ($file in ($files | Where-Object { $_ -notmatch $skip })) {
         $source = Join-Path $root $file
