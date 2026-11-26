@@ -1,0 +1,6 @@
+---
+# Run by cPanel's "Deploy HEAD Commit" button, from the repository folder.
+# Nothing is copied: the website runs straight from this folder's public directory.
+deployment:
+  tasks:
+    - /bin/sh scripts/cpanel-deploy.sh

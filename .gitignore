@@ -38,3 +38,10 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 /dist
+
+# Files cPanel creates in the website folder. Untracked files would block "Deploy HEAD Commit".
+/public/.well-known
+/public/cgi-bin
+/public/.user.ini
+/public/php.ini
+error_log

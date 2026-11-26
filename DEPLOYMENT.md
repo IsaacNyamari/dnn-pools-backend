@@ -8,7 +8,8 @@ GitHub  --pull-->  /home/USER/dnn-pools-backend/          the whole app (private
 ```
 
 cPanel keeps one copy of the repository, and the website runs from its `public` folder. Nothing is
-copied between folders, so there is no `.cpanel.yml`, and the **Deploy HEAD Commit** button is not used.
+copied between folders. The **Deploy HEAD Commit** button runs `.cpanel.yml`, which calls
+`scripts/cpanel-deploy.sh`: it installs the PHP packages, updates the database and refreshes the caches.
 
 | Part | Comes from |
 |---|---|
@@ -182,6 +183,7 @@ In production, every password (yours, and those set on the dashboards) needs at 
 with upper and lower case letters, a number and a symbol, and must not appear in known password leaks.
 
 **After any change to `.env`, run `$PHP artisan optimize` again.** Until you do, the change has no effect.
+Later updates need only the buttons described under "Updating the live site".
 
 The live database starts empty. Sign in, then create your institutions and directors.
 
@@ -214,29 +216,46 @@ the phones, then remove the old key.
 
 1. On your PC, build if needed (see "Before every push"), commit, and push to `main`.
 2. If the database changes, back it up (**phpMyAdmin → Export**).
-3. In Terminal (set `$PHP` and `$COMPOSER` first), put the site into maintenance:
+3. **Git Version Control** → **Manage** → **Pull or Deploy**. The checked-out branch should be `main`.
+4. Press **Update from Remote**, wait for it to finish, then press **Deploy HEAD Commit** straight away.
+
+Deploying puts the site into maintenance mode, installs the packages, updates the database, refreshes
+the caches and brings the site back. While it is down, phones keep their games queued.
+
+cPanel shows little about what happened. Its log is usually the newest `vc_*_git_deploy.log` in
+`/home/USER/.cpanel/logs/`. If the site stays in maintenance mode, a step failed: read that log, or run
+the same script in Terminal to see the messages:
 
 ```bash
 cd ~/dnn-pools-backend
-$PHP artisan down --render="errors::503"
+sh scripts/cpanel-deploy.sh
 ```
-
-4. **Git Version Control** → **Manage** → **Pull or Deploy** → **Update from Remote**. The checked-out
-   branch should be `main`.
-5. Back in Terminal:
-
-```bash
-$PHP $COMPOSER install --no-dev --optimize-autoloader
-$PHP artisan migrate --force
-$PHP artisan optimize
-$PHP artisan up
-```
-
-If a step fails, fix it before running `up`. While the site is down, phones keep their games queued
-and send them later.
 
 **Do not edit or build code on the server.** `.env` and `storage` are safe to change, because git
-ignores them. Other changes can make the next pull fail.
+ignores them. Other changes can stop the next pull or deployment.
+
+## When cPanel says "The system cannot deploy"
+
+cPanel shows its two requirements and disables **Deploy HEAD Commit**.
+
+1. **A valid `.cpanel.yml` file exists.** It must be in the server's copy: push it to `main`, then
+   press **Update from Remote**.
+2. **No uncommitted changes exist.** A file differs on the server. See which one:
+
+   ```bash
+   cd ~/dnn-pools-backend
+   git status
+   ```
+
+| What `git status` lists | Fix |
+|---|---|
+| `modified: public/.htaccess` (MultiPHP Manager adds lines to it) | `git update-index --skip-worktree public/.htaccess` keeps the server's lines and hides the difference |
+| Another file listed as modified, which you did not mean to change | `git diff FILE` to look, then `git restore FILE` to put back GitHub's version |
+| An untracked file you uploaded yourself | move it out of the repository folder |
+
+If you later change `public/.htaccess` on GitHub after using `skip-worktree`, the pull will refuse. Run
+`git update-index --no-skip-worktree public/.htaccess`, `git stash`, update, then `git stash pop`.
+
 
 ## Backups
 
@@ -254,7 +273,7 @@ The log is in `storage/logs/`.
 | Symptom | Likely cause |
 |---|---|
 | Update fails: "untracked working tree files would be overwritten" under `public/build` | you uploaded that folder by hand earlier: delete `public/build` on the server and update again |
-| Update fails: "local changes would be overwritten" | a file was changed on the server. See which with `git status`. For `public/.htaccess`, which MultiPHP Manager edits, run `git stash`, update, then `git stash pop` |
+| Update fails: "local changes would be overwritten" | a file was changed on the server: see "The system cannot deploy" above |
 | Update fails: "Not possible to fast-forward" | history on GitHub was rewritten, or a commit was made on the server |
 | Error 500 on every page | wrong PHP version, wrong database settings, packages not installed, or `storage` not writable; read the log |
 | "Your Composer dependencies require a PHP version" | the website or terminal PHP is below 8.4.1 |
