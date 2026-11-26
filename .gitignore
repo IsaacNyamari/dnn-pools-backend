@@ -1,6 +1,5 @@
 /.phpunit.cache
 /node_modules
-/public/build
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
@@ -38,4 +37,4 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
-/dist/dnn-pools-cpanel.zip
+/dist
