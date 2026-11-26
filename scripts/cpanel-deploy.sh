@@ -38,7 +38,7 @@ if [ -z "$PHP" ] || ! new_enough "$PHP"; then
 fi
 
 if [ -z "$COMPOSER_BIN" ]; then
-    for candidate in /opt/cpanel/composer/bin/composer /usr/local/bin/composer "$(command -v composer || true)"; do
+    for candidate in "$HOME/composer.phar" /opt/cpanel/composer/bin/composer /usr/local/bin/composer "$(command -v composer || true)"; do
         if [ -n "$candidate" ] && [ -f "$candidate" ]; then
             COMPOSER_BIN=$candidate
             break
